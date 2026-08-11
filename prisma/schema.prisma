@@ -27,32 +27,32 @@ model Profile {
 }
 
 model Category {
-  id    String   @id @default(cuid())
-  name  String   @unique
-  slug  String   @unique
-  image String?
-  products Product[]
+  id        String            @id @default(cuid())
+  name      String            @unique
+  slug      String            @unique
+  image     String?
+  products  ProductCategory[]
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  shortDesc   String?
-  description String?
-  brand       String?
-  sku         String?
-  price       Int      // store in kobo (for NGN) or minor unit
+  id            String            @id @default(cuid())
+  name          String
+  slug          String            @unique
+  shortDesc     String?
+  description   String?
+  brand         String?
+  sku           String?
+  price         Int               // price stored in kobo/minor unit (₦ amount * 100)
   discountPrice Int?
-  discountPct Int?
-  stock       Int
-  rating      Float?   @default(0)
-  reviewCount Int      @default(0)
-  status      String   @default("active")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  images      ProductImage[]
-  categories  Category[] @relation(references: [id])
+  discountPct   Int?
+  stock         Int
+  rating        Float?            @default(0)
+  reviewCount   Int               @default(0)
+  status        String            @default("active")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  images        ProductImage[]
+  categories    ProductCategory[]
 }
 
 model ProductImage {
@@ -61,6 +61,16 @@ model ProductImage {
   productId String
   url       String
   alt       String?
+}
+
+model ProductCategory {
+  id         String   @id @default(cuid())
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  @@unique([productId, categoryId], name: "product_category_unique")
 }
 
 model Cart {
