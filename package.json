@@ -1,0 +1,35 @@
+{
+  "name": "velora-ecommerce",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint || true",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:seed": "ts-node --transpile-only prisma/seed.ts"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "tailwindcss": "latest",
+    "postcss": "latest",
+    "autoprefixer": "latest",
+    "prisma": "latest",
+    "@prisma/client": "latest",
+    "@supabase/supabase-js": "latest",
+    "clsx": "latest",
+    "zod": "latest",
+    "lucide-react": "latest"
+  },
+  "devDependencies": {
+    "eslint": "latest",
+    "prettier": "latest",
+    "ts-node": "latest",
+    "@types/react": "latest",
+    "@types/node": "latest"
+  }
+}
