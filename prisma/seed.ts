@@ -16,10 +16,11 @@ async function main() {
     { name: 'Sports', slug: 'sports' }
   ]
 
+  // Upsert categories (idempotent)
   for (const c of categories) {
     await prisma.category.upsert({
       where: { slug: c.slug },
-      update: {},
+      update: { name: c.name },
       create: { name: c.name, slug: c.slug }
     })
   }
@@ -100,9 +101,22 @@ async function main() {
   ]
 
   for (const p of sampleProducts) {
-    const created = await prisma.product.upsert({
+    // Upsert product (idempotent)
+    const prod = await prisma.product.upsert({
       where: { slug: p.slug },
-      update: {},
+      update: {
+        name: p.name,
+        shortDesc: p.shortDesc,
+        description: p.description,
+        brand: p.brand,
+        sku: p.sku,
+        price: p.price,
+        discountPrice: p.discountPrice,
+        discountPct: p.discountPct,
+        stock: p.stock,
+        rating: p.rating,
+        reviewCount: p.reviewCount
+      },
       create: {
         name: p.name,
         slug: p.slug,
@@ -122,11 +136,24 @@ async function main() {
       }
     })
 
-    // connect categories
+    // Ensure images exist (if product existed but had no images)
+    const imgs = await prisma.productImage.findMany({ where: { productId: prod.id } })
+    if (imgs.length === 0 && p.images && p.images.length > 0) {
+      await prisma.productImage.createMany({
+        data: p.images.map((img) => ({ productId: prod.id, url: img.url, alt: img.alt }))
+      })
+    }
+
+    // Connect categories via explicit ProductCategory join model
     for (const catSlug of p.categories) {
       const cat = await prisma.category.findUnique({ where: { slug: catSlug } })
       if (cat) {
-        await prisma.$executeRaw`INSERT INTO _ProductToCategory (A,B) VALUES (${created.id}, ${cat.id}) ON CONFLICT DO NOTHING`;
+        // upsert using the compound unique (productId + categoryId)
+        await prisma.productCategory.upsert({
+          where: { productId_categoryId: { productId: prod.id, categoryId: cat.id } },
+          update: {},
+          create: { productId: prod.id, categoryId: cat.id }
+        })
       }
     }
   }
