@@ -1,15 +1,23 @@
-import ProductCard from '../../components/ProductCard'
-import { products } from '../../data/products'
+import ProductCard from '../../../components/ProductCard'
+import products from '../../../data/products'
 import Link from 'next/link'
 
 export default function CategoryPage({ params }: any){
   const { slug } = params
-  // simple filter by slug in name
-  const items = products.filter(p => p.slug.includes(slug))
+  // map slug to category name used in data
+  const mapping: Record<string,string> = {
+    'electronics': 'Electronics',
+    'phones-tablets': 'Phones & Tablets',
+    'computers': 'Computing',
+    'fashion': 'Fashion',
+    'home-kitchen': 'Home & Kitchen'
+  }
+  const catName = mapping[slug] || slug
+  const items = products.filter(p => p.category === catName)
   return (
     <main className="container py-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{slug.replace('-', ' ').toUpperCase()}</h1>
+        <h1 className="text-2xl font-bold">{catName}</h1>
         <Link href="/">Back</Link>
       </div>
 
